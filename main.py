@@ -1,4 +1,6 @@
 import pygame
+from configure import *
+from player import *
 
 SCREEN_WIDTH = 736
 SCREEN_HEIGHT = 736

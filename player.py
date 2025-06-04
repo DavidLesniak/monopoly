@@ -5,7 +5,7 @@ class Player:
         self.saldo = 1500
         self.properties = []
         self.in_jail = False
-
+        
     def move(self, value):
         pass
 
