@@ -1,31 +1,39 @@
-import pygame
-from configure import *
-from player import *
+import pygame as pg
 
-SCREEN_WIDTH = 736
-SCREEN_HEIGHT = 736
 
-pygame.init()
+pg.init()
 
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Monopoly")
-bg = pygame.image.load('board.png')
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 800
 
-def redrawGameWindow():
-    global bg
+pg.display.set_caption("Monopoly")
+screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-    screen.blit(bg, (0,0))
-    pygame.display.update()
 
-run = True
+class Game:
+    def __init__(self, width, height, screen):
+        self.SCREEN_WIDTH = width
+        self.SCREEN_HEIGHT = height
 
-while run:
-    pygame.time.delay(50)
+        self.screen = screen
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
+    def run(self):
+        run = True
 
-    redrawGameWindow()
+        while run:
+            pg.time.delay(450)
 
-pygame.quit()
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    run = False
+
+            self.update()
+
+    def update(self):
+        pg.display.update()
+
+
+if __name__ == '__main__':
+    monopoly = Game(SCREEN_WIDTH, SCREEN_HEIGHT, screen)
+    monopoly.run()
+    pg.quit()
