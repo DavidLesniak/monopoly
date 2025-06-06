@@ -18,6 +18,7 @@ class Player:
         self.rect = pg.Rect(0, 0, 20, 20)
         self.name = name
         self.color = color
+        self.cash = 3000
 
     def move(self, steps, cards):
         self.position = (self.position + steps) % len(cards)
@@ -130,10 +131,16 @@ class Game:
         self.board.draw(self.screen)
 
     def draw_interface(self):
-        pg.draw.rect(self.screen, (120, 200, 80), (80, 80, 640, 100))
+        # Licznik tura
+        pg.draw.rect(self.screen, (120, 200, 80), (80, 80, 640, 30))
         tour = FONT.render('Tura: '+self.players[self.current_player_index].name, True, (0, 0, 0))
-        screen.blit(tour, (90, 90))
+        self.screen.blit(tour, (90, 90))
 
+        # Licznik pieniądze
+        pg.draw.rect(self.screen, 'lightblue', (80, 110, 640, 60))
+        for i, player in enumerate(self.players):
+            cash_value = FONT.render(player.name+': '+str(player.cash)+'$', True, (0, 0, 0))
+            self.screen.blit(cash_value, (90, 90+((i+1)*30)))
 
     def draw_players(self):
         for player in self.players:
