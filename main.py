@@ -1,4 +1,5 @@
 import pygame as pg
+import random
 
 
 pg.init()
@@ -9,6 +10,27 @@ FONT = pg.font.SysFont(None, 24)
 
 pg.display.set_caption("Monopoly")
 screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+
+class Player:
+    def __init__(self, name, color):
+        self.position = 0
+        self.rect = pg.Rect(0, 0, 20, 20)
+        self.name = name
+        self.color = color
+
+    def move(self, steps, cards):
+        self.position = (self.position + steps) % len(cards)
+
+        card = cards[self.position]
+
+        center_x = card.x+card.width // 2
+        center_y = card.y+card.height // 2
+        self.rect.center = (center_x, center_y)
+
+    def draw(self, screen):
+        pg.draw.rect(screen, self.color, self.rect)
+
 
 class Card:
     def __init__(self, x, y, index):
@@ -70,21 +92,46 @@ class Game:
         self.screen = screen
         self.board = Board()
 
+        self.players = [Player('Dawid', 'green'), Player('Kacper', 'blue')]
+        self.init_players()
+
+        self.current_player_index = 0
+
+    def init_players(self):
+        for player in self.players:
+            player.move(0, self.board.cards)
+
     def run(self):
         run = True
 
         while run:
-            pg.time.delay(450)
+            pg.time.delay(50)
 
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     run = False
 
-            self.draw_board()
-            self.update()
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_SPACE:
+                        self.check_queue()
+                        
+            self.draw_board()   # Rysowanie planszy
+            self.draw_players() # Rysowanie gracyz
+            self.update()       # Aktualizacja
+
+    def check_queue(self):
+        player = self.players[self.current_player_index]
+        player.move(random.randint(1, 6), self.board.cards)
+
+        # Zmiana tury gracza
+        self.current_player_index = (self.current_player_index+1) % len(self.players)
 
     def draw_board(self):
         self.board.draw(self.screen)
+
+    def draw_players(self):
+        for player in self.players:
+            player.draw(self.screen)
 
     def update(self):
         pg.display.update()
