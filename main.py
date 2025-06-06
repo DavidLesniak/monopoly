@@ -60,29 +60,28 @@ class Board:
 
         for i in range(4):
             if i==0:
-                for j in range(10):
+                for j in range(9):
                     self.cards.append(Card(j*80, 0, o))
                     o+=1
 
             if i==1:
                 for j in range(9):
-                    self.cards.append(Card(720, (j*80)+80, o))
+                    self.cards.append(Card(720, j*80, o))
                     o+=1
 
             if i==2:
-                for j in reversed(range(10)):
-                    self.cards.append(Card((j*80)-80, 720, o))
+                for j in reversed(range(9)):
+                    self.cards.append(Card((j*80)+80, 720, o))
                     o+=1
 
             if i==3:
-                for j in reversed(range(8)):
+                for j in reversed(range(9)):
                     self.cards.append(Card(0, (j*80)+80, o))
                     o+=1
 
     def draw(self, screen):
         for card in self.cards:
             card.draw(screen)
-
 
 class Game:
     def __init__(self, width, height, screen):
@@ -116,6 +115,7 @@ class Game:
                         self.check_queue()
                         
             self.draw_board()   # Rysowanie planszy
+            self.draw_interface()
             self.draw_players() # Rysowanie gracyz
             self.update()       # Aktualizacja
 
@@ -128,6 +128,12 @@ class Game:
 
     def draw_board(self):
         self.board.draw(self.screen)
+
+    def draw_interface(self):
+        pg.draw.rect(self.screen, (120, 200, 80), (80, 80, 640, 100))
+        tour = FONT.render('Tura: '+self.players[self.current_player_index].name, True, (0, 0, 0))
+        screen.blit(tour, (90, 90))
+
 
     def draw_players(self):
         for player in self.players:
