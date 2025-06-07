@@ -1,5 +1,6 @@
 import pygame as pg
 import random
+import os
 
 
 pg.init()
@@ -11,78 +12,71 @@ FONT = pg.font.SysFont(None, 24)
 pg.display.set_caption("Monopoly")
 screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+path = os.path.join(os.getcwd(), 'images')
+file_names = os.listdir(path)
+IMAGES = {}
+for file_name in file_names:
+    image_name = file_name[:-4].upper()
+    IMAGES[image_name] = pg.image.load(os.path.join(path, file_name)).convert_alpha()
 
-class Player:
-    def __init__(self, name, color):
-        self.position = 0
-        self.rect = pg.Rect(0, 0, 20, 20)
+
+class Player(pg.sprite.Sprite):
+    def __init__(self, name, image=None):
+        super().__init__()
+        self.image = image
+        self.rect = image.get_rect()
+        self.rect.center = 0, 0
         self.name = name
-        self.color = color
-        self.cash = 3000
+        self.position = 0
 
     def move(self, steps, cards):
         self.position = (self.position + steps) % len(cards)
+        self.rect.center = cards[self.position].rect.center
 
-        card = cards[self.position]
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
 
-        center_x = card.x+card.width // 2
-        center_y = card.y+card.height // 2
-        self.rect.center = (center_x, center_y)
-
-    def draw(self, screen):
-        pg.draw.rect(screen, self.color, self.rect)
-
-
-class Card:
-    def __init__(self, x, y, index):
+class Card(pg.sprite.Sprite):
+    def __init__(self, tlx, tly, index, image=None):
+        super().__init__()
+        #self.rect = self.image.get_rect()
+        self.rect = pg.Rect(0, 0, 80, 80)
+        self.rect.topleft = tlx, tly
         self.index = index
-        self.name = None
-        self.price = None
-        self.x = x 
-        self.y = y
-        self.width = 80
-        self.height = 80
-        self.owner = None
-
-    def draw(self, screen):
-        pg.draw.rect(screen, (247, 247, 247), (self.x, self.y, self.width, self.height))
-
+        
+    def draw(self, surface):
+        pg.draw.rect(screen, (247, 247, 247), self.rect)
         index = FONT.render(str(self.index), True, (0, 0, 0))
-        screen.blit(index, (self.x+5, self.y+5))
+        screen.blit(index, self.rect.center)
 
 
 class Board:
     def __init__(self):
         self.cards = []
-        self.create_board()
+        self.init_board()
 
-    def create_board(self):
+    def init_board(self):
         index=0
-        
-        for i in range(4):
-            if i==0:
-                for j in range(9):
-                    self.cards.append(Card(j*80, 0, index))
-                    index+=1
 
-            if i==1:
-                for j in range(9):
-                    self.cards.append(Card(720, j*80, index))
-                    index+=1
+        for j in range(9):
+            self.cards.append(Card(j*80, 0, index))
+            index+=1
 
-            if i==2:
-                for j in reversed(range(9)):
-                    self.cards.append(Card((j*80)+80, 720, index))
-                    index+=1
+        for j in range(9):
+            self.cards.append(Card(720, j*80, index))
+            index+=1
 
-            if i==3:
-                for j in reversed(range(9)):
-                    self.cards.append(Card(0, (j*80)+80, index))
-                    index+=1
+        for j in reversed(range(9)):
+            self.cards.append(Card((j*80)+80, 720, index))
+            index+=1
 
-    def draw(self, screen):
+        for j in reversed(range(9)):
+            self.cards.append(Card(0, (j*80)+80, index))
+            index+=1
+
+    def draw(self, surface):
         for card in self.cards:
-            card.draw(screen)
+            card.draw(surface)
 
 class Game:
     def __init__(self, width, height, screen):
@@ -92,7 +86,7 @@ class Game:
 
         self.board = Board()
 
-        self.players = [Player('Dawid', 'green'), Player('Kacper', 'blue')]
+        self.players = [Player('Dawid', image=IMAGES['WINDOWS']), Player('Kacper', image=IMAGES['DEBIAN'])]
         self.init_players()
 
         self.current_player_index = 0
@@ -100,6 +94,7 @@ class Game:
     def init_players(self):
         for player in self.players:
             player.move(0, self.board.cards)
+            player.update()
 
     def run(self):
         run = True
@@ -116,7 +111,7 @@ class Game:
                         self.check_queue()
                         
             self.draw_board()   # Rysowanie planszy
-            self.draw_interface()
+            #self.draw_interface()
             self.draw_players() # Rysowanie gracyz
             self.update()       # Aktualizacja
 
