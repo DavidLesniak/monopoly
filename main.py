@@ -57,28 +57,28 @@ class Board:
         self.create_board()
 
     def create_board(self):
-        o=1
-
+        index=0
+        
         for i in range(4):
             if i==0:
                 for j in range(9):
-                    self.cards.append(Card(j*80, 0, o))
-                    o+=1
+                    self.cards.append(Card(j*80, 0, index))
+                    index+=1
 
             if i==1:
                 for j in range(9):
-                    self.cards.append(Card(720, j*80, o))
-                    o+=1
+                    self.cards.append(Card(720, j*80, index))
+                    index+=1
 
             if i==2:
                 for j in reversed(range(9)):
-                    self.cards.append(Card((j*80)+80, 720, o))
-                    o+=1
+                    self.cards.append(Card((j*80)+80, 720, index))
+                    index+=1
 
             if i==3:
                 for j in reversed(range(9)):
-                    self.cards.append(Card(0, (j*80)+80, o))
-                    o+=1
+                    self.cards.append(Card(0, (j*80)+80, index))
+                    index+=1
 
     def draw(self, screen):
         for card in self.cards:
@@ -86,10 +86,10 @@ class Board:
 
 class Game:
     def __init__(self, width, height, screen):
-        self.SCREEN_WIDTH = width
-        self.SCREEN_HEIGHT = height
-
+        self.widht = width
+        self.height = height
         self.screen = screen
+
         self.board = Board()
 
         self.players = [Player('Dawid', 'green'), Player('Kacper', 'blue')]
