@@ -39,13 +39,16 @@ class Player(pg.sprite.Sprite):
 class Card(pg.sprite.Sprite):
     def __init__(self, tlx, tly, index, image=None):
         super().__init__()
-        #self.rect = self.image.get_rect()
-        self.rect = pg.Rect(0, 0, 80, 80)
+        self.image = image
+        self.rect = self.image.get_rect()
+        #self.rect = pg.Rect(0, 0, 80, 80)
         self.rect.topleft = tlx, tly
         self.index = index
         
     def draw(self, surface):
-        pg.draw.rect(screen, (247, 247, 247), self.rect)
+        #pg.draw.rect(screen, (247, 247, 247), self.rect)
+        surface.blit(self.image, self.rect)
+
         index = FONT.render(str(self.index), True, (0, 0, 0))
         screen.blit(index, self.rect.center)
 
@@ -59,19 +62,32 @@ class Board:
         index=0
 
         for j in range(9):
-            self.cards.append(Card(j*80, 0, index))
+            if str(index) in IMAGES:
+                self.cards.append(Card(j*80, 0, index, image=IMAGES[str(index)]))
+            else:
+                self.cards.append(Card(j*80, 0, index, image=IMAGES['BLANK']))
+
             index+=1
 
         for j in range(9):
-            self.cards.append(Card(720, j*80, index))
+            if str(index) in IMAGES:
+                self.cards.append(Card(720, j*80, index, image=IMAGES[str(index)]))
+            else:
+                self.cards.append(Card(720, j*80, index, image=IMAGES['BLANK']))
             index+=1
 
         for j in reversed(range(9)):
-            self.cards.append(Card((j*80)+80, 720, index))
+            if str(index) in IMAGES:
+                self.cards.append(Card((j*80)+80, 720, index, image=IMAGES[str(index)]))
+            else:
+                self.cards.append(Card((j*80)+80, 720, index, image=IMAGES['BLANK']))
             index+=1
 
         for j in reversed(range(9)):
-            self.cards.append(Card(0, (j*80)+80, index))
+            if str(index) in IMAGES:
+                self.cards.append(Card(0, (j*80)+80, index, image=IMAGES[str(index)]))
+            else:
+                self.cards.append(Card(0, (j*80)+80, index, image=IMAGES['BLANK']))
             index+=1
 
     def draw(self, surface):
@@ -86,7 +102,10 @@ class Game:
 
         self.board = Board()
 
-        self.players = [Player('Dawid', image=IMAGES['WINDOWS']), Player('Kacper', image=IMAGES['DEBIAN'])]
+        self.players = [
+            Player('Dawid', image=IMAGES['WINDOWS']), 
+            Player('Kacper', image=IMAGES['DEBIAN'])
+        ]
         self.init_players()
 
         self.current_player_index = 0
