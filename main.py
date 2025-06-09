@@ -1,5 +1,5 @@
 import pygame as pg
-
+from button import *
 
 pg.init()
 
@@ -88,66 +88,24 @@ class Game:
 
     def update(self):
         pg.display.update()
-
-COLORS = {
-    'background': (50, 50, 50), # Kolor tła menu (ciemnoszary)
-    'button': (100, 200, 100), # Kolor przycisków (zielonkawy)
-    'text': (255, 255, 255) # Kolor tekstu (biały)
-}
-
-class Menu:
-    def __init__(self, screen):
-        self.screen = screen
-        self.game = None
-        self.buttons = [
-            {'rect': pg.Rect(300, 300, 200, 50), 'text': "Start", 'action': "play"},
-            {'rect': pg.Rect(300, 370, 200, 50), 'text': "Exit", 'action': "exit"}
-        ]
-        self.font = pg.font.SysFont(None, 45)  #czcionka tekstu
-
-    def draw(self):
-        self.screen.fill(COLORS['background']) # Wypełnienie tła określonym kolorem
-        for button in self.buttons:
-            pg.draw.rect(self.screen, COLORS['button'], button['rect']) # Rysowanie przycisku
-            text = self.font.render(button['text'], True, COLORS['text'])
-            text_rect = text.get_rect(center=button['rect'].center) #Pozycjonuje tekst na środku prostokąta
-            self.screen.blit(text, text_rect)
-        pg.display.update()
-        
-    def handle_events(self):
-        mouse_pos = pg.mouse.get_pos() # Pobiera aktualną pozycję myszy
-        click = False # Flaga oznaczająca kliknięcie
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                return "exit"
-            if event.type == pg.MOUSEBUTTONDOWN:
-                click = True
-
-        if click:
-            for button in self.buttons:
-                if button['rect'].collidepoint(mouse_pos):
-                    return button['action']
-        return "menu"
-
-    def run(self):
-        run = True
-        while run:
-            action = self.handle_events()
-            if action == "exit": #zatrzymuje menu
-                run = False
-            elif action == "play":
-                self.game = Game(SCREEN_WIDTH, SCREEN_HEIGHT, self.screen)
-                self.game.run()
-                run = False         
-            self.draw()
-
-        
-
     
 
 if __name__ == '__main__':
-    menu = Menu(screen)
-    menu.run()
-    #monopoly = Menu(screen)
-    #monopoly.run()
+    start_button = Button((SCREEN_WIDTH - button_width) // 2, 100, start_img, start_hover_img, 1)
+    exit_button = Button((SCREEN_WIDTH - button_width) // 2, 300, exit_img, exit_hover_img, 1)
+
+    run = True
+    while run:
+        screen.fill((202, 228, 241))
+        if start_button.draw(screen):
+            game = Game(SCREEN_WIDTH, SCREEN_HEIGHT, screen)
+            game.run()
+            run = False
+        if exit_button.draw(screen):
+            run = False
+
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                run = False
+        pg.display.update()
     pg.quit()
