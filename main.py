@@ -1,5 +1,6 @@
 import pygame as pg
 from button import *
+from setup import *
 
 pg.init()
 
@@ -74,7 +75,7 @@ class Game:
 
         while run:
             pg.time.delay(450)
-            self.screen.fill((0, 0, 0)) #wypelnia okno
+            self.screen.fill((0, 0, 0)) 
 
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -91,8 +92,9 @@ class Game:
     
 
 if __name__ == '__main__':
-    start_button = Button((SCREEN_WIDTH - button_width) // 2, 100, start_img, start_hover_img, 1)
-    exit_button = Button((SCREEN_WIDTH - button_width) // 2, 300, exit_img, exit_hover_img, 1)
+    start_button = Button(start_x, start_y, start_img, start_hover_img, 1)
+    setup_button = Button(setup_x, setup_y, setup_img, setup_hover_img, 1)
+    exit_button = Button(exit_x, exit_y, exit_img, exit_hover_img, 1)
 
     run = True
     while run:
@@ -101,6 +103,8 @@ if __name__ == '__main__':
             game = Game(SCREEN_WIDTH, SCREEN_HEIGHT, screen)
             game.run()
             run = False
+        if setup_button.draw(screen):
+            setup = Setup()
         if exit_button.draw(screen):
             run = False
 
