@@ -386,7 +386,7 @@ if __name__ == '__main__':
     while run:
         screen.fill((202, 228, 241))
         if start_button.draw(screen):
-            game = Game(SCREEN_WIDTH, SCREEN_HEIGHT, screen)
+            game = Game(screen)
             game.run()
             run = False
         if setup_button.draw(screen):
