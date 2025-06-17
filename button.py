@@ -1,6 +1,8 @@
 import pygame as pg
 from config import *
 
+SCREEN_WIDTH, SCREEN_HEIGHT = 800, 800
+
 class Button:
     def __init__(self, x, y, image, hover_image, scale):
         width = image.get_width()
