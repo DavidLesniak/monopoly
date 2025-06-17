@@ -82,3 +82,8 @@ three_chosen_button = Button(between_NOP_and_numbers_width + number_button_width
 four_button = Button(between_NOP_and_numbers_width + 2 * (number_button_width + button_spacing), NOP_y + between_NOP_and_numbers_height, four_img, four_hover_img, 1)
 four_chosen_button = Button(between_NOP_and_numbers_width + 2 * (number_button_width + button_spacing), NOP_y + between_NOP_and_numbers_height, four_chosen_img, four_chosen_img, 1)
 back_button = Button(between_NOP_and_numbers_width, between_numbers_and_next_back_height + between_NOP_and_numbers_width + NOP_y, back_img, back_hover_img, 1)
+
+
+throwButton = Button(350, 400, pg.image.load("grafika/throw.png"), pg.image.load("grafika/throw_hover.png"), 0.5)
+buyButton = Button(350, 470, pg.image.load("grafika/buy.png"), pg.image.load("grafika/buy_hover.png"), 0.5)
+endthrowButton = Button(350, 540, pg.image.load("grafika/endthrow.png"), pg.image.load("grafika/endthrow_hover.png"), 0.5)

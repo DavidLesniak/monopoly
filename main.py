@@ -303,10 +303,6 @@ class Game:
 
 
         self.init_players()
-        #self.draw_board()
-        #self.draw_players()
-        #self.gui.draw(self.screen)
-       # self.update()
 
     def init_players(self):
         for player in self.players:
@@ -314,23 +310,31 @@ class Game:
             player.update(self.board.cards)
 
     def run(self):
+        
+
         run = True
 
         while run:
             self.screen.fill('#000000')
+
+            if throwButton.draw(self.screen):
+                self.current_player_index = (self.current_player_index+1) % len(self.players)
+                self.playerTourText.text = 'Rzuca gracz: '+self.players[self.current_player_index].name
+                player = self.players[self.current_player_index]
+                self.dice.roll()
+                player.move(self.dice.total)
+
+            if buyButton.draw(self.screen):
+                pass
+
+            if endthrowButton.draw(self.screen):
+                pass
 
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     run = False
 
                 if event.type == pg.KEYDOWN:
-                    if event.key == pg.K_SPACE:
-                        self.current_player_index = (self.current_player_index+1) % len(self.players)
-                        self.playerTourText.text = 'Rzuca gracz: '+self.players[self.current_player_index].name
-                        player = self.players[self.current_player_index]
-                        self.dice.roll()
-                        player.move(self.dice.total)
-
                     if event.key == pg.K_b:
                         if self.board.cards[self.current_player_index].owner == None:
                             self.board.cards[self.players[self.current_player_index].destination].buy(self.players[self.current_player_index])
@@ -341,27 +345,18 @@ class Game:
                             print(self.players[self.current_player_index].cash)
                         
                         
-
-
             # Rysowanie planszy
             self.board.draw(self.screen)
-            #self.board.cards[self.players[self.current_player_index].position].draw_card_details(self.screen)
 
             # Rysotaniwe graczy
             for player in self.players:
                 player.update(self.board.cards)
                 player.draw(self.screen)
             
-            # Rysowanie komunikatu
-            #self.playerTourText.update()
-            #self.playerTourText.draw(self.screen)
-
-            # Rysowanie stanu konta
-            #for text in self.playerCashText:
-            #    text.update()
-            #    text.draw(self.screen)
+            # Rysowanie statystyk graczy
             self.scoreboard.update(self.players)
             self.scoreboard.draw(self.screen)
+
             pg.display.update()
             clock.tick(60)
 
