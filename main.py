@@ -4,11 +4,10 @@ import os
 from card_deck import *
 from button import *
 from setup import *
+from config import *
 
 pg.init()
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 800
 FONT = pg.font.SysFont(None, 24)
 
 pg.display.set_caption('Monopoly')
@@ -378,9 +377,6 @@ class Game:
     
 
 if __name__ == '__main__':
-    start_button = Button(start_x, start_y, start_img, start_hover_img, 1)
-    setup_button = Button(setup_x, setup_y, setup_img, setup_hover_img, 1)
-    exit_button = Button(exit_x, exit_y, exit_img, exit_hover_img, 1)
 
     run = True
     while run:
