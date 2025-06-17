@@ -207,8 +207,11 @@ class Card(pg.sprite.Sprite):
         buttonUpgradeText.draw(surface)
 
     def buy(self, player):
-        self.owner = player
-        self.field.fill('#c1ff72')
+        if self.owner == None:
+            if player.cash - self.price >= 0:
+                self.owner = player
+                player.cash -= self.price
+                self.field.fill('#c1ff72')
 
     def draw(self, surface):
         surface.blit(self.border, self.borderRect)
@@ -325,7 +328,9 @@ class Game:
                 player.move(self.dice.total)
 
             if buyButton.draw(self.screen):
-                pass
+                player = self.players[self.current_player_index]
+
+                self.board.cards[player.destination].buy(player)
 
             if endthrowButton.draw(self.screen):
                 pass
