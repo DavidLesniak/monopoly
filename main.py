@@ -87,15 +87,20 @@ class Player(pg.sprite.Sprite):
         self.name = name
         self.position = 0
         self.destination = 0
+        self.moving = False
         self.cash = 3000
 
     def move(self, steps):
+        self.moving = True
         self.destination = (self.position + steps) % 36
         
     def update(self, cards):
         if self.position != self.destination:
             self.position = (self.position+1) % 36
-            pg.time.delay(200)
+            pg.time.delay(50)
+
+        else:
+            self.moving = False
 
         self.rect.center = cards[self.position].fieldRect.center
             
@@ -104,12 +109,18 @@ class Player(pg.sprite.Sprite):
         surface.blit(self.image, self.rect)
 
 
+class CardSpecial(pg.sprite.Sprite):
+    def __init__(self):
+        pass
+
 
 class Card(pg.sprite.Sprite):
-    def __init__(self, tlx, tly, index, color='red', name='', sticky=False, price=0):
+    def __init__(self, tlx, tly, index, color='red', name='', sticky=False, price=0, fee=[0,0,0,0]):
         self.index = index
         self.color = color
         self.price = price
+        self.fee = fee
+        self.updateLevel = 0
         self.owner = None 
         self.name = name
         self.sticky = sticky
@@ -161,7 +172,7 @@ class Card(pg.sprite.Sprite):
         cardInfoBar.fill(self.color)
         cardInfoBarRect = cardInfoBar.get_rect()
 
-        cardInfoRect.center = 300, 400
+        cardInfoRect.topleft = 200, 300
         cardInfoBarRect.topleft = cardInfoRect.topleft
 
         # Umieszczenie nazwy pola
@@ -172,46 +183,60 @@ class Card(pg.sprite.Sprite):
         surface.blit(cardInfoBar, cardInfoBarRect)
 
         # Wyświetlenie ceny
-        cardInfoPrice = TextCenter(str(self.price)+'$', 'black', cardInfoBarRect.centerx, cardInfoBarRect.bottom+15, 24)
+        cardInfoPrice = TextCenter(str(self.price)+'$', 'black', cardInfoBarRect.centerx, cardInfoBarRect.bottom+25, 24)
 
         if self.owner != None:
-            cardInforPlayerName = TextCenter('Właściciel: '+str(self.owner.name), 'black', cardInfoBarRect.centerx, cardInfoBarRect.bottom+35, 16)
+            cardInforPlayerName = TextCenter('Właściciel: '+str(self.owner.name), 'black', cardInfoBarRect.centerx, cardInfoBarRect.bottom+50, 16)
             cardInforPlayerName.draw(surface)
 
         cardInfoPrice.draw(surface)
         cardName.draw(surface)
 
+        for i in range(0,4):
+            updateText = Text(f'Poziom {i}: '+str(self.fee[i]), 'black', cardInfoBarRect.left+20, cardInfoBarRect.bottom+70+(15*i), 16)
+            updateText.draw(surface)
 
         # Menu akcji
-        buttonBuy = pg.Surface((140, 40))
-        buttonBuy.fill('#F7F7F7')
-        buttonBuyRect = buttonBuy.get_rect()
-        buttonBuyRect.top = cardInfoRect.top
-        buttonBuyRect.left = cardInfoRect.right+40
+        # buttonBuy = pg.Surface((140, 40))
+        # buttonBuy.fill('#F7F7F7')
+        # buttonBuyRect = buttonBuy.get_rect()
+        # buttonBuyRect.top = cardInfoRect.top
+        # buttonBuyRect.left = cardInfoRect.right+40
 
-        buttonBuyText = TextCenter("Kup", 'black', buttonBuyRect.centerx, buttonBuyRect.centery, 20)
+        # buttonBuyText = TextCenter("Kup", 'black', buttonBuyRect.centerx, buttonBuyRect.centery, 20)
 
-        surface.blit(buttonBuy, buttonBuyRect)
-        buttonBuyText.draw(surface)
+        # surface.blit(buttonBuy, buttonBuyRect)
+        # buttonBuyText.draw(surface)
 
 
-        buttonUpgrade = pg.Surface((140, 40))
-        buttonUpgrade.fill('#F7F7F7')
-        buttonUpgradeRect = buttonUpgrade.get_rect()
-        buttonUpgradeRect.top = buttonBuyRect.bottom+20
-        buttonUpgradeRect.left = cardInfoRect.right+40
+        # buttonUpgrade = pg.Surface((140, 40))
+        # buttonUpgrade.fill('#F7F7F7')
+        # buttonUpgradeRect = buttonUpgrade.get_rect()
+        # buttonUpgradeRect.top = buttonBuyRect.bottom+20
+        # buttonUpgradeRect.left = cardInfoRect.right+40
 
-        buttonUpgradeText = TextCenter("Ulepsz", 'black', buttonUpgradeRect.centerx, buttonUpgradeRect.centery, 20)
+        # buttonUpgradeText = TextCenter("Ulepsz", 'black', buttonUpgradeRect.centerx, buttonUpgradeRect.centery, 20)
 
-        surface.blit(buttonUpgrade, buttonUpgradeRect)
-        buttonUpgradeText.draw(surface)
+        # surface.blit(buttonUpgrade, buttonUpgradeRect)
+        # buttonUpgradeText.draw(surface)
 
     def buy(self, player):
-        if self.owner == None:
-            if player.cash - self.price >= 0:
-                self.owner = player
-                player.cash -= self.price
-                self.field.fill('#c1ff72')
+        if self.sticky != None:
+            if self.owner == None:
+                if player.cash - self.price >= 0:
+                    self.owner = player
+                    player.cash -= self.price
+                    self.field.fill('#c1ff72')
+                else:
+                    print('Brak wystarczających środków na koncie!')
+            else:
+                print(f'To pole należy do gracza {self.owner.name}')
+        else:
+            print('Pole specjalne nie można go kupić!')
+
+    def pay(self, player):
+        player.cash -= self.fee[self.updateLevel]
+        print(f'Gracz {player.name} płaci {self.fee[self.updateLevel]}$ graczowi {self.owner.name}')
 
     def draw(self, surface):
         surface.blit(self.border, self.borderRect)
@@ -226,7 +251,6 @@ class Card(pg.sprite.Sprite):
         return f'\n({self.index})------------------\n | Właściciel: {self.owner}\n | Koszt: 300$'
 
 
-
 class Board:
     def __init__(self):
         self.cards = []
@@ -236,29 +260,29 @@ class Board:
         index=0
 
         for j in range(9):
-            if CARDS[index]['special'] == False:
-                self.cards.append(Card(j*80, 0, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky='S', price=CARDS[index]['price']))
+            if CARDS[index]['type'] == 'property':
+                self.cards.append(Card(j*80, 0, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky='S', price=CARDS[index]['price'], fee=CARDS[index]['fee']))
             else:
                 self.cards.append(Card(j*80, 0, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky=None, price=CARDS[index]['price']))
             index+=1
 
         for j in range(9):
-            if CARDS[index]['special'] == False:
-                self.cards.append(Card(720, j*80, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky='W', price=CARDS[index]['price']))
+            if CARDS[index]['type'] == 'property':
+                self.cards.append(Card(720, j*80, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky='W', price=CARDS[index]['price'], fee=CARDS[index]['fee']))
             else:
                 self.cards.append(Card(720, j*80, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky=None, price=CARDS[index]['price']))
             index+=1
 
         for j in reversed(range(9)):
-            if CARDS[index]['special'] == False:
-                self.cards.append(Card((j*80)+80, 720, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky='N', price=CARDS[index]['price']))
+            if CARDS[index]['type'] == 'property':
+                self.cards.append(Card((j*80)+80, 720, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky='N', price=CARDS[index]['price'], fee=CARDS[index]['fee']))
             else:
                 self.cards.append(Card((j*80)+80, 720, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky=None, price=CARDS[index]['price']))
             index+=1
 
         for j in reversed(range(9)):
-            if CARDS[index]['special'] == False:
-                self.cards.append(Card(0, (j*80)+80, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky='E', price=CARDS[index]['price']))
+            if CARDS[index]['type'] == 'property':
+                self.cards.append(Card(0, (j*80)+80, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky='E', price=CARDS[index]['price'], fee=CARDS[index]['fee']))
             else:
                 self.cards.append(Card(0, (j*80)+80, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky=None, price=CARDS[index]['price']))
             index+=1
@@ -274,6 +298,9 @@ class Scoreboard:
         self.playerStats.fill('lightblue')
         self.playerStatsRect = self.playerStats.get_rect()
         self.playerStatsRect.topleft = (81, 81)
+
+        #self.playerTour = pg.Surface(200, 116)
+        #self.playerTourText = 
     
     def update(self, players):
         self.textNames = []
@@ -301,6 +328,7 @@ class Game:
             Player('Kacper', image=IMAGES['DEBIAN'])
         ]
         self.current_player_index = -1
+        self.tour = False
         self.playerTourText = TextCenter('Tura gracza: '+self.players[0].name, 'black', 400, 120, 30)
         self.playerCashText = [TextCenter(player.name+': '+str(player.cash)+'$', 'black', 200, 150+(25*i), 25) for i, player in enumerate(self.players)]
 
@@ -313,27 +341,43 @@ class Game:
             player.update(self.board.cards)
 
     def run(self):
-        
-
         run = True
 
         while run:
-            self.screen.fill('#000000')
+            self.screen.fill('#808080')
 
-            if throwButton.draw(self.screen):
-                self.current_player_index = (self.current_player_index+1) % len(self.players)
-                self.playerTourText.text = 'Rzuca gracz: '+self.players[self.current_player_index].name
-                player = self.players[self.current_player_index]
-                self.dice.roll()
-                player.move(self.dice.total)
+            # Przycisk rzutu kościom
+            if self.tour == False:
+                if throwButton.draw(self.screen):
+                    self.tour = True
+                    self.current_player_index = (self.current_player_index+1) % len(self.players)
+                    self.playerTourText.text = 'Rzuca gracz: '+self.players[self.current_player_index].name
+                    player = self.players[self.current_player_index]
+                    self.dice.roll()
+                    player.move(self.dice.total)
 
-            if buyButton.draw(self.screen):
-                player = self.players[self.current_player_index]
+            else:
+                throwButtonNoactive.draw(self.screen)
 
-                self.board.cards[player.destination].buy(player)
+            # Przycisk zakupu
+            if self.board.cards[self.players[self.current_player_index].destination].owner == None and self.players[self.current_player_index].moving == False and self.tour == True:
+                if buyButton.draw(self.screen):
+                    player = self.players[self.current_player_index]
 
-            if endthrowButton.draw(self.screen):
-                pass
+                    self.board.cards[player.destination].buy(player)
+            else:
+                buyButtonNoactive.draw(self.screen)
+
+            # Przycisk końca tury
+            if self.tour == True and self.players[self.current_player_index].moving == False:
+                if endthrowButton.draw(self.screen):
+                    card = self.board.cards[self.players[self.current_player_index].destination]
+                    if card.owner != self.players[self.current_player_index] and card.owner != None:
+                        self.board.cards[self.players[self.current_player_index].destination].pay(self.players[self.current_player_index])
+                    self.tour = False
+            else:
+                endthrowButtonNoactive.draw(self.screen)
+                
 
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -361,6 +405,8 @@ class Game:
             # Rysowanie statystyk graczy
             self.scoreboard.update(self.players)
             self.scoreboard.draw(self.screen)
+
+            self.board.cards[self.players[self.current_player_index].position].draw_card_details(self.screen)
 
             pg.display.update()
             clock.tick(60)
