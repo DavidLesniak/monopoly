@@ -41,6 +41,7 @@ class TextCenter:
     def draw(self, surface):
         surface.blit(self.image, self.rect)
 
+
 class Text:
     def __init__(self, text, text_color, tlx, tly, font_size = 36, font_family = None):
         self.text = str(text)
@@ -79,7 +80,6 @@ class Dice:
         return self.dice1 == self.dice2
 
 
-
 class Player(pg.sprite.Sprite):
     def __init__(self, name, image=None):
         self.image = image
@@ -103,19 +103,12 @@ class Player(pg.sprite.Sprite):
             self.moving = False
 
         self.rect.center = cards[self.position].fieldRect.center
-            
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)
 
-
-class CardSpecial(pg.sprite.Sprite):
-    def __init__(self):
-        pass
-
-
 class Card(pg.sprite.Sprite):
-    def __init__(self, tlx, tly, index, color='red', name='', sticky=False, price=0, fee=[0,0,0,0]):
+    def __init__(self, tlx, tly, index, color='red', name='', sticky='', price=0, fee=[0,0,0,0]):
         self.index = index
         self.color = color
         self.price = price
@@ -128,7 +121,6 @@ class Card(pg.sprite.Sprite):
         self._borderThickness = 1
         self._barThickness = 15
        
-
         # Stworzenie obramowania pola
         self.border = pg.Surface((80,80))
         self.border.fill('black')
@@ -192,33 +184,11 @@ class Card(pg.sprite.Sprite):
         cardInfoPrice.draw(surface)
         cardName.draw(surface)
 
+        Text('Opłaty: ', 'black', cardInfoBarRect.left+20, cardInfoBarRect.bottom+70, 16).draw(surface)
+
         for i in range(0,4):
-            updateText = Text(f'Poziom {i}: '+str(self.fee[i]), 'black', cardInfoBarRect.left+20, cardInfoBarRect.bottom+70+(15*i), 16)
-            updateText.draw(surface)
+            Text(f'Poziom {i+1}: '+str(self.fee[i])+'$', 'black', cardInfoBarRect.left+20, cardInfoBarRect.bottom+90+(15*i), 16).draw(surface)
 
-        # Menu akcji
-        # buttonBuy = pg.Surface((140, 40))
-        # buttonBuy.fill('#F7F7F7')
-        # buttonBuyRect = buttonBuy.get_rect()
-        # buttonBuyRect.top = cardInfoRect.top
-        # buttonBuyRect.left = cardInfoRect.right+40
-
-        # buttonBuyText = TextCenter("Kup", 'black', buttonBuyRect.centerx, buttonBuyRect.centery, 20)
-
-        # surface.blit(buttonBuy, buttonBuyRect)
-        # buttonBuyText.draw(surface)
-
-
-        # buttonUpgrade = pg.Surface((140, 40))
-        # buttonUpgrade.fill('#F7F7F7')
-        # buttonUpgradeRect = buttonUpgrade.get_rect()
-        # buttonUpgradeRect.top = buttonBuyRect.bottom+20
-        # buttonUpgradeRect.left = cardInfoRect.right+40
-
-        # buttonUpgradeText = TextCenter("Ulepsz", 'black', buttonUpgradeRect.centerx, buttonUpgradeRect.centery, 20)
-
-        # surface.blit(buttonUpgrade, buttonUpgradeRect)
-        # buttonUpgradeText.draw(surface)
 
     def buy(self, player):
         if self.sticky != None:
@@ -238,17 +208,32 @@ class Card(pg.sprite.Sprite):
         player.cash -= self.fee[self.updateLevel]
         print(f'Gracz {player.name} płaci {self.fee[self.updateLevel]}$ graczowi {self.owner.name}')
 
+
+    def update(self, player):
+        # Przycisk zakupu
+        if self.owner == None and player.moving == False:
+            if buyButton.draw(self.screen):
+                self.buy(player)
+        else:
+            buyButtonNoactive.draw(self.screen)
+
+
+
     def draw(self, surface):
         surface.blit(self.border, self.borderRect)
         surface.blit(self.field, self.fieldRect)
 
         if self.sticky != None:
             surface.blit(self.bar, self.barRect)
+
+        
         
         #TextCenter(self.index, 'black', self.fieldRect.centerx, self.fieldRect.centery, 20).draw(surface)
 
-    def __str__(self):
-        return f'\n({self.index})------------------\n | Właściciel: {self.owner}\n | Koszt: 300$'
+
+class CardSpecial(Card):
+    def __init__(self):
+        pass
 
 
 class Board:
@@ -298,16 +283,12 @@ class Scoreboard:
         self.playerStats.fill('lightblue')
         self.playerStatsRect = self.playerStats.get_rect()
         self.playerStatsRect.topleft = (81, 81)
-
-        #self.playerTour = pg.Surface(200, 116)
-        #self.playerTourText = 
     
     def update(self, players):
         self.textNames = []
 
         for i, player in enumerate(players):
             self.textNames.append(Text(player.name+': '+str(player.cash)+'$', 'black', self.playerStatsRect.left+10, self.playerStatsRect.top+(25*i)+5, 22))
-        
 
     def draw(self, surface):
         surface.blit(self.playerStats, self.playerStatsRect)
@@ -327,11 +308,6 @@ class Game:
             Player('Dawid', image=IMAGES['WINDOWS']), 
             Player('Kacper', image=IMAGES['DEBIAN'])
         ]
-        self.current_player_index = -1
-        self.tour = False
-        self.playerTourText = TextCenter('Tura gracza: '+self.players[0].name, 'black', 400, 120, 30)
-        self.playerCashText = [TextCenter(player.name+': '+str(player.cash)+'$', 'black', 200, 150+(25*i), 25) for i, player in enumerate(self.players)]
-
 
         self.init_players()
 
@@ -342,84 +318,76 @@ class Game:
 
     def run(self):
         run = True
+        tour_index = 0
+        tour = False
+        player = self.players[tour_index]
+        card = self.board.cards[0]
 
         while run:
             self.screen.fill('#808080')
 
+            card = self.board.cards[player.position]
+
             # Przycisk rzutu kościom
-            if self.tour == False:
+            if tour == False:
                 if throwButton.draw(self.screen):
-                    self.tour = True
-                    self.current_player_index = (self.current_player_index+1) % len(self.players)
-                    self.playerTourText.text = 'Rzuca gracz: '+self.players[self.current_player_index].name
-                    player = self.players[self.current_player_index]
+                    tour = True
                     self.dice.roll()
                     player.move(self.dice.total)
-
             else:
                 throwButtonNoactive.draw(self.screen)
 
+            #print(player.name)
+            #print('D:'+str(self.players[0].position))
+            #print('K: '+str(self.players[1].position))
             # Przycisk zakupu
-            if self.board.cards[self.players[self.current_player_index].destination].owner == None and self.players[self.current_player_index].moving == False and self.tour == True:
-                if buyButton.draw(self.screen):
-                    player = self.players[self.current_player_index]
-
-                    self.board.cards[player.destination].buy(player)
-            else:
-                buyButtonNoactive.draw(self.screen)
+            #if self.board.cards[player.destination].owner == None and player.moving == False and self.tour == True:
+            #    if buyButton.draw(self.screen):
+            #        player = self.players[self.current_player_index]
+            #
+            #        self.board.cards[player.destination].buy(player)
+            #else:
+            #    buyButtonNoactive.draw(self.screen)
 
             # Przycisk końca tury
-            if self.tour == True and self.players[self.current_player_index].moving == False:
+            if tour == True and player.moving == False:
+                #card.update(player)
+
                 if endthrowButton.draw(self.screen):
-                    card = self.board.cards[self.players[self.current_player_index].destination]
-                    if card.owner != self.players[self.current_player_index] and card.owner != None:
-                        self.board.cards[self.players[self.current_player_index].destination].pay(self.players[self.current_player_index])
-                    self.tour = False
+                    # Pdatek
+                    if card.owner != player and card.owner != None:
+                        card.pay(player)
+
+                    tour = False
+                    tour_index = (tour_index+1) % len(self.players)
+                    player = self.players[tour_index]
+
             else:
                 endthrowButtonNoactive.draw(self.screen)
-                
-
+            
+            # Wyłączanie gry
             for event in pg.event.get():
                 if event.type == pg.QUIT:
-                    run = False
-
-                if event.type == pg.KEYDOWN:
-                    if event.key == pg.K_b:
-                        if self.board.cards[self.current_player_index].owner == None:
-                            self.board.cards[self.players[self.current_player_index].destination].buy(self.players[self.current_player_index])
-
-                            if self.board.cards[self.current_player_index].owner == None:
-                                self.players[self.current_player_index].cash -= self.board.cards[self.players[self.current_player_index].destination].price
-                                self.playerCashText = [TextCenter(player.name+': '+str(player.cash)+'$', 'black', 200, 150+(25*i), 25) for i, player in enumerate(self.players)]
-                            print(self.players[self.current_player_index].cash)
-                        
+                    run = False                        
                         
             # Rysowanie planszy
             self.board.draw(self.screen)
 
             # Rysotaniwe graczy
-            for player in self.players:
-                player.update(self.board.cards)
-                player.draw(self.screen)
+            for p in self.players:
+                p.update(self.board.cards)
+                p.draw(self.screen)
             
             # Rysowanie statystyk graczy
             self.scoreboard.update(self.players)
             self.scoreboard.draw(self.screen)
 
-            self.board.cards[self.players[self.current_player_index].position].draw_card_details(self.screen)
+            # Rysowanie karty na której znajduje się gracz
+            card.draw_card_details(self.screen)
 
             pg.display.update()
             clock.tick(60)
 
-    def draw_board(self):
-        self.board.draw(self.screen)
-
-    def draw_players(self):
-        for player in self.players:
-            player.draw(self.screen)
-
-    def update(self):
-        pg.display.update()
     
 
 if __name__ == '__main__':
