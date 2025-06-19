@@ -40,9 +40,9 @@ class Player(pg.sprite.Sprite):
         self.moving = True
         self.destination = (self.position + steps) % 36
 
-    def actionAnimation(self, text='', color='black'):
+    def actionAnimation(self, text='', color='black', size=25):
         self.animation = True
-        self._animationText = TextCenter(text, color, self.rect.centerx, self.rect.centery, 25)
+        self._animationText = TextCenter(text, color, self.rect.centerx, self.rect.centery, size)
 
     def update(self, cards):
         if self.position != self.destination:
@@ -166,9 +166,11 @@ class Card(pg.sprite.Sprite):
                     self.owner = player
                     player.cash -= self.price
                     self.field.fill('#c1ff72')
-                    self.update()                    
+                    self.update()   
+                    player.actionAnimation(f'-{self.price}$', 'red')
+           
                 else:
-                    print('Brak wystarczających środków na koncie!')
+                    player.actionAnimation('Brak środków!', size=20)
             else:
                 print(f'To pole należy do gracza {self.owner.name}')
         else:
@@ -176,6 +178,7 @@ class Card(pg.sprite.Sprite):
 
     def pay(self, player):
         player.cash -= self.fee[self.updateLevel]
+        self.owner.cash += self.fee[self.updateLevel]
         print(f'Gracz {player.name} płaci {self.fee[self.updateLevel]}$ graczowi {self.owner.name}')
 
     def upgrade(self, player):
@@ -186,8 +189,9 @@ class Card(pg.sprite.Sprite):
                         player.cash -= 100
                         self.updateLevel += 1
                         self.update()
+                        player.actionAnimation(f'-100$', 'red')
                     else:
-                        print('Brak wystarczających środków do ulepszenia!')
+                        player.actionAnimation('Brak środków!', size=20)
                 else:
                     print('Osiągnięto maksymalny posiom ulepszeń!')
             else:
@@ -299,14 +303,12 @@ class Game:
                 if card.updateLevel < len(card.fee)-1:
                     if upgradeButton.draw(self.screen):
                         card.upgrade(player)
-                        player.actionAnimation(f'-100$', 'red')
 
             # Przycisk zakupu
             if card.owner == None and player.moving == False and tour == True:
                 if buyButton.draw(self.screen):
                     card.buy(player)
-                    player.actionAnimation(f'-{card.price}$', 'red')
-
+                        
             # Przycisk końca tury
             if tour == True and player.moving == False:
                 if endthrowButton.draw(self.screen):
