@@ -34,11 +34,16 @@ class Player(pg.sprite.Sprite):
         self.destination = 0
         self.moving = False
         self.cash = 3000
+        self.animation = False
 
     def move(self, steps):
         self.moving = True
         self.destination = (self.position + steps) % 36
-        
+
+    def actionAnimation(self, text='', color='black'):
+        self.animation = True
+        self._animationText = TextCenter(text, color, self.rect.centerx, self.rect.centery, 25)
+
     def update(self, cards):
         if self.position != self.destination:
             self.position = (self.position+1) % 36
@@ -49,8 +54,19 @@ class Player(pg.sprite.Sprite):
 
         self.rect.center = cards[self.position].fieldRect.center
 
+        if self.animation:
+            self._animationText.cy -= 0.7
+            self._animationText.update()
+
+            if self._animationText.cy < self.rect.centery-40:
+                self.animation = False
+
+
     def draw(self, surface):
         surface.blit(self.image, self.rect)
+
+        if self.animation:
+            self._animationText.draw(surface)
 
 
 class Card(pg.sprite.Sprite):
@@ -150,8 +166,7 @@ class Card(pg.sprite.Sprite):
                     self.owner = player
                     player.cash -= self.price
                     self.field.fill('#c1ff72')
-                    self.update()
-                    pg.time.delay(100)
+                    self.update()                    
                 else:
                     print('Brak wystarczających środków na koncie!')
             else:
@@ -192,9 +207,6 @@ class Card(pg.sprite.Sprite):
 
         if self.sticky != None:
             surface.blit(self.bar, self.barRect)
-
-        #TextCenter(self.index, 'black', self.fieldRect.centerx, self.fieldRect.centery, 20).draw(surface)
-
     
 
 class CardSpecial(Card):
@@ -287,11 +299,13 @@ class Game:
                 if card.updateLevel < len(card.fee)-1:
                     if upgradeButton.draw(self.screen):
                         card.upgrade(player)
+                        player.actionAnimation(f'-100$', 'red')
 
             # Przycisk zakupu
             if card.owner == None and player.moving == False and tour == True:
                 if buyButton.draw(self.screen):
                     card.buy(player)
+                    player.actionAnimation(f'-{card.price}$', 'red')
 
             # Przycisk końca tury
             if tour == True and player.moving == False:
@@ -300,6 +314,8 @@ class Game:
                     # Pdatek
                     if card.owner != player and card.owner != None:
                         card.pay(player)
+                        player.actionAnimation(f'-{card.fee[card.updateLevel]}$', 'red')    # @property
+                        card.owner.actionAnimation(f'+{card.fee[card.updateLevel]}$', 'darkgreen') 
 
                     tour = False
                     tour_index = (tour_index+1) % len(self.players)
@@ -316,7 +332,7 @@ class Game:
             # Rysowanie planszy
             self.board.draw(self.screen)
 
-            # Rysotaniwe graczy
+            # Rysowanie graczy
             for p in self.players:
                 p.update(self.board.cards)
                 p.draw(self.screen)
@@ -328,6 +344,7 @@ class Game:
             # Rysowanie karty na której znajduje się gracz
             card.draw_card_details(self.screen)
 
+            # Odświeżenie obrazu
             pg.display.update()
             clock.tick(60)
 
