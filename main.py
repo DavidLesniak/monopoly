@@ -381,13 +381,28 @@ if __name__ == '__main__':
     run = True
     while run:
         screen.fill((202, 228, 241))
-        if start_button.draw(screen):
+        if menu_buttons["start"].draw(screen):
             game = Game(screen)
             game.run()
             run = False
-        if setup_button.draw(screen):
-            setup = Setup()
-        if exit_button.draw(screen):
+        if menu_buttons["setup"].draw(screen):
+            current_setup = "setup"
+            while True:
+                if current_setup == "setup":
+                    setup = Setup()
+                    result = setup.run()
+                    if result == "next":
+                        current_setup = "setup2"
+                    else:
+                        break  
+                elif current_setup == "setup2":
+                    setup2 = Setup2()
+                    result = setup2.run()
+                    if result == "back":
+                        current_setup = "setup"
+                    else:
+                        break  
+        if menu_buttons["exit"].draw(screen):
             run = False
 
         for event in pg.event.get():
