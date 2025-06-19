@@ -90,3 +90,4 @@ buyButton = Button(380, 370, pg.image.load("grafika/buy.png"), pg.image.load("gr
 buyButtonNoactive = Button(380, 370, pg.image.load("grafika/buy_noactive.png"), pg.image.load("grafika/buy_noactive.png"), 0.5)
 endthrowButton = Button(380, 440, pg.image.load("grafika/endthrow.png"), pg.image.load("grafika/endthrow_hover.png"), 0.5)
 endthrowButtonNoactive = Button(380, 440, pg.image.load("grafika/endthrow_notactive.png"), pg.image.load("grafika/endthrow_notactive.png"), 0.5)
+upgradeButton = Button(380, 370, pg.image.load("grafika/upgrade.png"), pg.image.load("grafika/upgrade_hover.png"), 0.5)
