@@ -329,6 +329,7 @@ class Game:
             else:
                 throwButtonNoactive.draw(self.screen)
 
+            # Sprawcamy czy karta jest normalna czy specjalna
             if isinstance(card, SpecialCard) == False:
                 # Przycisk ulepszenia
                 if card.owner == player and player.moving == False and tour == True:
