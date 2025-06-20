@@ -392,11 +392,12 @@ if __name__ == '__main__':
                     setup = Setup()
                     result = setup.run()
                     if result == "next":
+                        number_of_players = setup.number_of_players
                         current_setup = "setup2"
                     else:
                         break  
                 elif current_setup == "setup2":
-                    setup2 = Setup2()
+                    setup2 = Setup2(number_of_players)
                     result = setup2.run()
                     if result == "back":
                         current_setup = "setup"
