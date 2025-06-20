@@ -8,6 +8,7 @@ from config import *
 from dice import Dice
 from text import Text, TextCenter
 from scoreboard import Scoreboard
+from specialCardActions import *
 
 pg.init()
 
@@ -36,35 +37,55 @@ class Player(pg.sprite.Sprite):
         self.cash = 3000
         self.animation = False
         self._animationTextGroup = []
+        self.jail = 0
 
     def move(self, steps):
-        self.moving = True
-        self.destination = (self.position + steps) % 36
+        if self.jail > 0:
+            self.jail -= 1
+        else:
+            self.moving = True
+            self.destination = (self.position + steps) % 36
 
     def actionAnimation(self, text='', color='black', size=25):
         self.animation = True
         self._animationTextGroup.append(TextCenter(text, color, self.rect.centerx, self.rect.centery, size))
 
     def update(self, cards):
+        # Aktualizacaj pozycji jeśli gracz nie dotarł na wyznaczone pole
         if self.position != self.destination:
+
+            # Dodanie wpłaty na konto po przejściu przez start
+            if self.position == 0 and self.position != self.destination:
+                self.actionAnimation('+400$', 'green', 30)
+                self.cash += 400
+
             self.position = (self.position+1) % 36
             pg.time.delay(50)
 
         else:
             self.moving = False
 
+        # Przeniesienia gracza do więzienia jesli staną na odpowienim polu
+        if self.destination == 27 and self.moving == False:
+                self.position = 9
+                self.destination = 9
+                self.jail = 1
+
         self.rect.center = cards[self.position].fieldRect.center
 
         if self.animation:
             for textObject in self._animationTextGroup:
+                if self.moving:
+                    textObject.cx = self.rect.centerx
+                    textObject.cy = self.rect.centery
                 textObject.cy -= 0.7
                 textObject.update()
 
                 if textObject.cy < self.rect.centery-40:
                     self._animationTextGroup.remove(textObject)
                     
-            if len(self._animationTextGroup) == 0:
-                animation = False
+        if len(self._animationTextGroup) == 0:
+            animation = False
 
 
     def draw(self, surface):
@@ -192,11 +213,11 @@ class Card(pg.sprite.Sprite):
         if self.sticky != None:
             if self.owner == player:
                 if self.updateLevel < len(self.fee)-1:
-                    if player.cash - 100 >= 0:
-                        player.cash -= 100
+                    if player.cash - 200 >= 0:
+                        player.cash -= 200
                         self.updateLevel += 1
                         self.update()
-                        player.actionAnimation(f'-100$', 'red')
+                        player.actionAnimation(f'-200$', 'red')
                     else:
                         player.actionAnimation('Brak środków!', size=20)
                 else:
@@ -220,13 +241,14 @@ class Card(pg.sprite.Sprite):
             surface.blit(self.bar, self.barRect)
 
 class SpecialCard(Card):
-    def __init__(self, tlx, tly, index, name, description, sticky, image):
+    def __init__(self, tlx, tly, index, name, description, sticky, image, actionFunctino=None):
         super().__init__(tlx, tly, index, '#F7F7F7', sticky)
         self.name = name
         self.description = description
         self.image = image
         self.imageRect = image.get_rect()
         self.imageRect.center = self.fieldRect.center
+        self.function = actionFunctino
 
     def draw_card_details(self, surface):
         # Stworzenie karty
@@ -262,6 +284,10 @@ class SpecialCard(Card):
     def update(self):
         pass
 
+    def action(self, player):
+        if self.function != None:
+            self.function(player)
+
 
 
 class Board:
@@ -276,13 +302,17 @@ class Board:
         
         for _ in range(36):
             x = _ // 9
-            print(x)
             tlx, tly = next(xy[x])
 
             if CARDS[_]['type'] == 'property':
                 self.cards.append(Card(tlx, tly, index=_, color=CARDS[_]['color'], name=CARDS[_]['name'], sticky=sticky[x], price=CARDS[_]['price'], fee=CARDS[_]['fee']))
             if CARDS[_]['type'] == 'special':
-                self.cards.append(SpecialCard(tlx, tly, index=_, name=CARDS[_]['name'], sticky=sticky[x], description=CARDS[_]['description'], image=IMAGES[CARDS[_]['image']]))
+                func = None
+
+                if CARDS[_]['name'] == 'Płany parking':
+                    func = payCardAction
+
+                self.cards.append(SpecialCard(tlx, tly, index=_, name=CARDS[_]['name'], sticky=sticky[x], description=CARDS[_]['description'], image=IMAGES[CARDS[_]['image']], actionFunctino=func))
 
     def draw(self, surface):
         for card in self.cards:
@@ -295,10 +325,10 @@ class Game:
         self.board = Board()
         self.scoreboard = Scoreboard()
         self.players = [
-            Player('Dawid', image=IMAGES['WINDOWS']), 
-            Player('Kacper', image=IMAGES['DEBIAN']),
-            Player('Tomek', image=IMAGES['REDHAT']),
-            Player('Marcin', image=IMAGES['CENTOS'])
+            Player('Dawid', image=IMAGES['WINDOWS'])
+            #Player('Kacper', image=IMAGES['DEBIAN']),
+            #Player('Tomek', image=IMAGES['REDHAT']),
+           # Player('Marcin', image=IMAGES['CENTOS'])
         ]
 
         self.init_players()
@@ -346,11 +376,17 @@ class Game:
             if tour == True and player.moving == False:
                 if endthrowButton.draw(self.screen):
 
-                    # Pdatek
-                    if card.owner != player and card.owner != None:
-                        card.pay(player)
-                        player.actionAnimation(f'-{card.fee[card.updateLevel]}$', 'red')    # @property
-                        card.owner.actionAnimation(f'+{card.fee[card.updateLevel]}$', 'darkgreen') 
+                    # Jeśli to normalne pole
+                    if isinstance(card, SpecialCard) == False:
+                        # Pdatek
+                        if card.owner != player and card.owner != None:
+                            card.pay(player)
+                            player.actionAnimation(f'-{card.fee[card.updateLevel]}$', 'red')    # @property
+                            card.owner.actionAnimation(f'+{card.fee[card.updateLevel]}$', 'darkgreen') 
+
+                    else:
+                        card.action(player)
+
 
                     tour = False
                     tour_index = (tour_index+1) % len(self.players)
