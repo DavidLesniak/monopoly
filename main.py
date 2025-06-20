@@ -131,7 +131,7 @@ class Card(pg.sprite.Sprite):
         cardInfoBar.fill(self.color)
         cardInfoBarRect = cardInfoBar.get_rect()
 
-        cardInfoRect.topleft = 200, 300
+        cardInfoRect.topleft = 225, 300
         cardInfoBarRect.topleft = cardInfoRect.topleft
 
         # Umieszczenie nazwy pola
@@ -168,6 +168,7 @@ class Card(pg.sprite.Sprite):
                     self.field.fill('#c1ff72')
                     self.update()   
                     player.actionAnimation(f'-{self.price}$', 'red')
+                    pg.time.delay(100)
            
                 else:
                     player.actionAnimation('Brak środków!', size=20)
@@ -225,34 +226,18 @@ class Board:
 
     def init_board(self):
         index=0
+        sticky = ['S', 'W', 'N', 'E']
+        xy = [((x*80, 0) for x in range(9)), ((720, y*80) for y in range(9)), (((x*80)+80, 720) for x in reversed(range(9))), ((0,(y*80)+80) for y in reversed(range(9)))]
+        
+        for _ in range(36):
+            x = _ // 9
+            print(x)
+            tlx, tly = next(xy[x])
 
-        for j in range(9):
-            if CARDS[index]['type'] == 'property':
-                self.cards.append(Card(j*80, 0, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky='S', price=CARDS[index]['price'], fee=CARDS[index]['fee']))
+            if CARDS[_]['type'] == 'property':
+                self.cards.append(Card(tlx, tly, index=_, color=CARDS[_]['color'], name=CARDS[_]['name'], sticky=sticky[x], price=CARDS[_]['price'], fee=CARDS[_]['fee']))
             else:
-                self.cards.append(Card(j*80, 0, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky=None, price=CARDS[index]['price']))
-            index+=1
-
-        for j in range(9):
-            if CARDS[index]['type'] == 'property':
-                self.cards.append(Card(720, j*80, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky='W', price=CARDS[index]['price'], fee=CARDS[index]['fee']))
-            else:
-                self.cards.append(Card(720, j*80, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky=None, price=CARDS[index]['price']))
-            index+=1
-
-        for j in reversed(range(9)):
-            if CARDS[index]['type'] == 'property':
-                self.cards.append(Card((j*80)+80, 720, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky='N', price=CARDS[index]['price'], fee=CARDS[index]['fee']))
-            else:
-                self.cards.append(Card((j*80)+80, 720, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky=None, price=CARDS[index]['price']))
-            index+=1
-
-        for j in reversed(range(9)):
-            if CARDS[index]['type'] == 'property':
-                self.cards.append(Card(0, (j*80)+80, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky='E', price=CARDS[index]['price'], fee=CARDS[index]['fee']))
-            else:
-                self.cards.append(Card(0, (j*80)+80, index=index, color=CARDS[index]['color'], name=CARDS[index]['name'], sticky=None, price=CARDS[index]['price']))
-            index+=1
+                self.cards.append(Card(tlx, tly, index=_, color=CARDS[_]['color'], name=CARDS[_]['name'], sticky=None, price=CARDS[_]['price']))
 
     def draw(self, surface):
         for card in self.cards:
@@ -267,7 +252,8 @@ class Game:
         self.players = [
             Player('Dawid', image=IMAGES['WINDOWS']), 
             Player('Kacper', image=IMAGES['DEBIAN']),
-            Player('Tomek', image=IMAGES['REDHAT'])
+            Player('Tomek', image=IMAGES['REDHAT']),
+            Player('Marcin', image=IMAGES['CENTOS'])
         ]
 
         self.init_players()
