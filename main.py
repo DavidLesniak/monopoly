@@ -207,9 +207,9 @@ class Card(pg.sprite.Sprite):
             print('Pole specjalne nie można go ulepszyć!')
 
     def update(self):
-        self.imageUpgrade = IMAGES['HOUSE'+str(self.updateLevel+1)]
-        self.imageUpgradeRect = self.imageUpgrade.get_rect()
-        self.imageUpgradeRect.center = self.fieldRect.center
+        self.image = IMAGES['HOUSE'+str(self.updateLevel+1)]
+        self.imageRect = self.image.get_rect()
+        self.imageRect.center = self.fieldRect.center
 
     def draw(self, surface):
         surface.blit(self.border, self.borderRect)
