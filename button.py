@@ -84,10 +84,10 @@ four_chosen_button = Button(between_NOP_and_numbers_width + 2 * (number_button_w
 back_button = Button(between_NOP_and_numbers_width, between_numbers_and_next_back_height + between_NOP_and_numbers_width + NOP_y, back_img, back_hover_img, 1)
 
 
-throwButton = Button(380, 300, pg.image.load("grafika/throw.png"), pg.image.load("grafika/throw_hover.png"), 0.5)
-throwButtonNoactive = Button(380, 300, pg.image.load('grafika/throw_notactive.png'), pg.image.load('grafika/throw_notactive.png'), 0.5)
-buyButton = Button(380, 370, pg.image.load("grafika/buy.png"), pg.image.load("grafika/buy_hover.png"), 0.5)
-buyButtonNoactive = Button(380, 370, pg.image.load("grafika/buy_noactive.png"), pg.image.load("grafika/buy_noactive.png"), 0.5)
-endthrowButton = Button(380, 440, pg.image.load("grafika/endthrow.png"), pg.image.load("grafika/endthrow_hover.png"), 0.5)
-endthrowButtonNoactive = Button(380, 440, pg.image.load("grafika/endthrow_notactive.png"), pg.image.load("grafika/endthrow_notactive.png"), 0.5)
-upgradeButton = Button(380, 370, pg.image.load("grafika/upgrade.png"), pg.image.load("grafika/upgrade_hover.png"), 0.5)
+throwButton = Button(415, 300, pg.image.load("grafika/throw.png"), pg.image.load("grafika/throw_hover.png"), 0.5)
+throwButtonNoactive = Button(415, 300, pg.image.load('grafika/throw_notactive.png'), pg.image.load('grafika/throw_notactive.png'), 0.5)
+buyButton = Button(415, 380, pg.image.load("grafika/buy.png"), pg.image.load("grafika/buy_hover.png"), 0.5)
+buyButtonNoactive = Button(415, 380, pg.image.load("grafika/buy_noactive.png"), pg.image.load("grafika/buy_noactive.png"), 0.5)
+endthrowButton = Button(415, 460, pg.image.load("grafika/endthrow.png"), pg.image.load("grafika/endthrow_hover.png"), 0.5)
+endthrowButtonNoactive = Button(415, 460, pg.image.load("grafika/endthrow_notactive.png"), pg.image.load("grafika/endthrow_notactive.png"), 0.5)
+upgradeButton = Button(415, 380, pg.image.load("grafika/upgrade.png"), pg.image.load("grafika/upgrade_hover.png"), 0.5)
