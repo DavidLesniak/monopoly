@@ -2,7 +2,6 @@ import pygame as pg
 from config import *
 
 SCREEN_WIDTH, SCREEN_HEIGHT = 800, 800
-
 BUTTON_SPACING = 30
 
 def load_image(path):
@@ -25,6 +24,7 @@ BUTTON_IMAGES = {
     "player1": (load_image("grafika/player1.png"), load_image("grafika/player1.png")),
     "player2": (load_image("grafika/player2.png"), load_image("grafika/player2.png")),
     "player3": (load_image("grafika/player3.png"), load_image("grafika/player3.png")),
+    "player4": (load_image("grafika/player4.png"), load_image("grafika/player4.png")),
     "centos": (load_image("images/centos.png"), load_image("images/hover_centos.png")),
     "chosen_centos": (load_image("images/chosen_centos.png"), load_image("images/chosen_centos.png")),
     "debian": (load_image("images/debian.png"), load_image("images/hover_debian.png")),
@@ -33,6 +33,7 @@ BUTTON_IMAGES = {
     "chosen_redhat": (load_image("images/chosen_redhat.png"), load_image("images/chosen_redhat.png")),
     "windows": (load_image("images/windows.png"), load_image("images/hover_windows.png")),
     "chosen_windows": (load_image("images/chosen_windows.png"), load_image("images/chosen_windows.png")),
+    "name": (load_image("grafika/name.png"), load_image("grafika/name.png")),
 }
 
 class Button:
@@ -81,6 +82,7 @@ def create_setup_buttons():
     number_button_height = BUTTON_IMAGES["two"][0].get_height()
     back_width = BUTTON_IMAGES["back"][0].get_width()
     next_width = BUTTON_IMAGES["next"][0].get_width()
+    name_width = BUTTON_IMAGES["name"][0].get_width()
     number_width = (number_button_width * 3) + (BUTTON_SPACING * 2)
     nop_x = (SCREEN_WIDTH - nop_img.get_width()) // 2
     nop_y = (SCREEN_HEIGHT - nop_img.get_height()) // 4
@@ -91,6 +93,15 @@ def create_setup_buttons():
     nav_y = numbers_y + number_button_height + BUTTON_SPACING
     back_x = nav_x
     next_x = nav_x + back_width + BUTTON_SPACING
+
+    system_buttons = ["centos", "debian", "redhat", "windows"]
+    button_width = BUTTON_IMAGES["centos"][0].get_width()
+    num_buttons = len(system_buttons)
+    total_width = num_buttons * button_width + (num_buttons - 1) * BUTTON_SPACING
+    pawn_x = (SCREEN_WIDTH - total_width) // 2
+    name_x = (SCREEN_WIDTH - name_width) // 2
+    
+    
 
     buttons = {
         "nop": Button(nop_x, nop_y, *BUTTON_IMAGES["nop"]),
@@ -106,16 +117,27 @@ def create_setup_buttons():
         "player1": Button(nop_x, nop_y, *BUTTON_IMAGES["player1"]),
         "player2": Button(nop_x, nop_y, *BUTTON_IMAGES["player2"]),
         "player3": Button(nop_x, nop_y, *BUTTON_IMAGES["player3"]),
-        "centos": Button(numbers_x, numbers_y, *BUTTON_IMAGES["centos"]),
-        "chosen_centos": Button(numbers_x, numbers_y, *BUTTON_IMAGES["chosen_centos"]),
-        "debian": Button(numbers_x, numbers_y, *BUTTON_IMAGES["debian"]),
-        "chosen_debian": Button(numbers_x, numbers_y, *BUTTON_IMAGES["chosen_debian"]),
-        "redhat": Button(numbers_x, numbers_y, *BUTTON_IMAGES["redhat"]),
-        "chosen_redhat": Button(numbers_x, numbers_y, *BUTTON_IMAGES["chosen_redhat"]),
-        "windows": Button(numbers_x, numbers_y, *BUTTON_IMAGES["windows"]),
-        "chosen_windows": Button(numbers_x, numbers_y, *BUTTON_IMAGES["chosen_windows"]),
+        "player4": Button(nop_x, nop_y, *BUTTON_IMAGES["player4"]),  
+        
+        "centos": Button(pawn_x + 0 * (button_width + BUTTON_SPACING), numbers_y, *BUTTON_IMAGES["centos"]),
+        "chosen_centos": Button(pawn_x + 0 * (button_width + BUTTON_SPACING), numbers_y, *BUTTON_IMAGES["chosen_centos"]),
+        "debian": Button(pawn_x + 1 * (button_width + BUTTON_SPACING), numbers_y, *BUTTON_IMAGES["debian"]),
+        "chosen_debian": Button(pawn_x + 1 * (button_width + BUTTON_SPACING), numbers_y, *BUTTON_IMAGES["chosen_debian"]),
+        "redhat": Button(pawn_x + 2 * (button_width + BUTTON_SPACING), numbers_y, *BUTTON_IMAGES["redhat"]),
+        "chosen_redhat": Button(pawn_x + 2 * (button_width + BUTTON_SPACING), numbers_y, *BUTTON_IMAGES["chosen_redhat"]),
+        "windows": Button(pawn_x + 3 * (button_width + BUTTON_SPACING), numbers_y, *BUTTON_IMAGES["windows"]),
+        "chosen_windows": Button(pawn_x + 3 * (button_width + BUTTON_SPACING), numbers_y, *BUTTON_IMAGES["chosen_windows"]),
+        "name": Button(name_x, numbers_y + BUTTON_SPACING, *BUTTON_IMAGES["name"]),
     }
     return buttons
+
+def draw_input(screen, y_input, input_text):
+    font = pg.font.SysFont(None, 36)
+    input_rect = pg.Rect((screen.get_width() // 2) - 100, y_input, 200, 40)
+    color_active = pg.Color('#0000ff')
+    pg.draw.rect(screen, color_active, input_rect, 2)
+    input_surface = font.render(input_text, True, (0, 0, 0))
+    screen.blit(input_surface, (input_rect.x + 5, input_rect.y + 5))
 
 menu_buttons = create_menu_buttons()
 setup_buttons = create_setup_buttons()
