@@ -1,6 +1,5 @@
 import pygame as pg
 from button import *
-from main import *
 
 class Setup:
     def __init__(self):
