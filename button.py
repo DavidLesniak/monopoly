@@ -141,3 +141,11 @@ def draw_input(screen, y_input, input_text):
 
 menu_buttons = create_menu_buttons()
 setup_buttons = create_setup_buttons()
+
+throwButton = Button(415, 300, pg.image.load("grafika/throw.png"), pg.image.load("grafika/throw_hover.png"), 0.5)
+throwButtonNoactive = Button(415, 300, pg.image.load('grafika/throw_notactive.png'), pg.image.load('grafika/throw_notactive.png'), 0.5)
+buyButton = Button(415, 380, pg.image.load("grafika/buy.png"), pg.image.load("grafika/buy_hover.png"), 0.5)
+buyButtonNoactive = Button(415, 380, pg.image.load("grafika/buy_noactive.png"), pg.image.load("grafika/buy_noactive.png"), 0.5)
+endthrowButton = Button(415, 460, pg.image.load("grafika/endthrow.png"), pg.image.load("grafika/endthrow_hover.png"), 0.5)
+endthrowButtonNoactive = Button(415, 460, pg.image.load("grafika/endthrow_notactive.png"), pg.image.load("grafika/endthrow_notactive.png"), 0.5)
+upgradeButton = Button(415, 380, pg.image.load("grafika/upgrade.png"), pg.image.load("grafika/upgrade_hover.png"), 0.5)
