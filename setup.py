@@ -111,14 +111,25 @@ class Setup2():
             else:
                 if setup_buttons["apply"].draw(screen):
                     if self.chosen_token in available_tokens:
-                        name = self.input_text.strip() if self.input_text.strip() else f"player{self.current_player}"
+                        # Jeśli użytkownik nie poda nazwy przypisuje domyślną nazwę
+                        name = self.input_text.strip() if self.input_text.strip() else f"player{self.current_player}" 
+
+                        # Zapisujemy gracza do listy graczy
                         self.player_names[self.current_player - 1] = name
                         self.selected_tokens.append(self.chosen_token)
+
                         player_tokens = {f"player{i+1}": token for i, token in enumerate(self.selected_tokens)}
-                        return {
-                            "tokens": player_tokens,
-                            "names": self.player_names
-                        }
+
+                        result = []
+                        for i, p in enumerate(self.player_names):
+                            r = {
+                                'name': p,
+                                'token': self.selected_tokens[i]
+                            }
+
+                            result.append(r)
+
+                        return result
 
             for event in pg.event.get():
                 if event.type == pg.QUIT:

@@ -319,17 +319,15 @@ class Board:
             card.draw(surface)
 
 class Game:
-    def __init__(self, screen):
+    def __init__(self, screen, players):
         self.screen = screen
         self.dice = Dice()
         self.board = Board()
         self.scoreboard = Scoreboard()
-        self.players = [
-            Player('Dawid', image=IMAGES['WINDOWS'])
-            #Player('Kacper', image=IMAGES['DEBIAN']),
-            #Player('Tomek', image=IMAGES['REDHAT']),
-           # Player('Marcin', image=IMAGES['CENTOS'])
-        ]
+        self.players = []
+
+        for player in players:
+            self.players.append(Player(player['name'], IMAGES[player['token'].upper()]))
 
         self.init_players()
 
@@ -422,12 +420,12 @@ class Game:
     
 
 if __name__ == '__main__':
-
+    result = None
     run = True
     while run:
         screen.fill((202, 228, 241))
-        if menu_buttons["start"].draw(screen):
-            game = Game(screen)
+        if menu_buttons["start"].draw(screen) and result != None:
+            game = Game(screen, result)
             game.run()
             run = False
         if menu_buttons["setup"].draw(screen):
