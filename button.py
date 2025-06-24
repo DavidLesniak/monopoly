@@ -8,7 +8,7 @@ def load_image(path):
     return pg.image.load(path)
 
 BUTTON_IMAGES = {
-    "start": (load_image("grafika/start.png"), load_image("grafika/start_hover.png")),
+    "start": (load_image("grafika/start_menu.png"), load_image("grafika/start_hover.png")),
     "setup": (load_image("grafika/setup.png"), load_image("grafika/setup_hover.png")),
     "exit": (load_image("grafika/exit.png"), load_image("grafika/exit_hover.png")),
     "back": (load_image("grafika/back.png"), load_image("grafika/back_hover.png")),
