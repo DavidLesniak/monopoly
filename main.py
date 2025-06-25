@@ -258,6 +258,8 @@ class Game:
         for player in players:
             self.players.append(Player(player['name'], IMAGES[player['token'].upper()]))
 
+        self.textInfo = TextCenter('Tura gracza: '+self.players[0].name, 'black', 535, 135)
+
         self.init_players()
 
     def init_players(self):
@@ -318,6 +320,8 @@ class Game:
                     tour = False
                     tour_index = (tour_index+1) % len(self.players)
                     player = self.players[tour_index]
+                    self.textInfo.text = 'Tura gracza: '+ player.name
+                    self.textInfo.update()
 
             else:
                 endthrowButtonNoactive.draw(self.screen)
@@ -346,6 +350,9 @@ class Game:
 
             # Rysowanie karty na której znajduje się gracz
             card.draw_card_details(self.screen)
+
+            # Wypisanie informacji o turze gracza
+            self.textInfo.draw(self.screen)
 
             # Odświeżenie obrazu
             pg.display.update()
