@@ -2,6 +2,8 @@ import pygame as pg
 
 SCREEN_WIDTH, SCREEN_HEIGHT = 800, 800
 BUTTON_SPACING = 30
+pg.mixer.init()
+
 
 def load_image(path):
     return pg.image.load(path)
@@ -36,13 +38,14 @@ BUTTON_IMAGES = {
 }
 
 class Button:
-    def __init__(self, x, y, image, hover_image, scale=1):
+    def __init__(self, x, y, image, hover_image, sound="soundtracks\\mouse-click-290204.mp3", scale=1):
         width = image.get_width()
         height = image.get_height()
         self.image = pg.transform.scale(image, (int(width * scale), int(height * scale)))
         self.hover_image = pg.transform.scale(hover_image, (int(width * scale), int(height * scale)))
         self.rect = self.image.get_rect(topleft=(x, y))
         self.was_pressed = False
+        self.sound_effect = pg.mixer.Sound(sound)
 
     def draw(self, screen):
         action = False
@@ -55,6 +58,7 @@ class Button:
             elif not mouse_pressed and self.was_pressed:
                 self.was_pressed = False
                 action = True
+                self.sound_effect.play()
         else:
             screen.blit(self.image, self.rect)
         if not mouse_pressed:
@@ -141,10 +145,10 @@ def draw_input(screen, y_input, input_text):
 menu_buttons = create_menu_buttons()
 setup_buttons = create_setup_buttons()
 
-throwButton = Button(415, 300, pg.image.load("grafika/throw.png"), pg.image.load("grafika/throw_hover.png"), 0.5)
-throwButtonNoactive = Button(415, 300, pg.image.load('grafika/throw_notactive.png'), pg.image.load('grafika/throw_notactive.png'), 0.5)
-buyButton = Button(415, 380, pg.image.load("grafika/buy.png"), pg.image.load("grafika/buy_hover.png"), 0.5)
-buyButtonNoactive = Button(415, 380, pg.image.load("grafika/buy_noactive.png"), pg.image.load("grafika/buy_noactive.png"), 0.5)
-endthrowButton = Button(415, 460, pg.image.load("grafika/endthrow.png"), pg.image.load("grafika/endthrow_hover.png"), 0.5)
-endthrowButtonNoactive = Button(415, 460, pg.image.load("grafika/endthrow_notactive.png"), pg.image.load("grafika/endthrow_notactive.png"), 0.5)
-upgradeButton = Button(415, 380, pg.image.load("grafika/upgrade.png"), pg.image.load("grafika/upgrade_hover.png"), 0.5)
+throwButton = Button(415, 300, pg.image.load("grafika/throw.png"), pg.image.load("grafika/throw_hover.png"), "soundtracks\\dice-142528.mp3", scale=0.5)
+throwButtonNoactive = Button(415, 300, pg.image.load('grafika/throw_notactive.png'), pg.image.load('grafika/throw_notactive.png'), scale=0.5)
+buyButton = Button(415, 380, pg.image.load("grafika/buy.png"), pg.image.load("grafika/buy_hover.png"), "soundtracks\\spinning-coin-on-table-352448.mp3", scale=0.5)
+buyButtonNoactive = Button(415, 380, pg.image.load("grafika/buy_noactive.png"), pg.image.load("grafika/buy_noactive.png"), scale=0.5)
+endthrowButton = Button(415, 460, pg.image.load("grafika/endthrow.png"), pg.image.load("grafika/endthrow_hover.png"), scale=0.5)
+endthrowButtonNoactive = Button(415, 460, pg.image.load("grafika/endthrow_notactive.png"), pg.image.load("grafika/endthrow_notactive.png"), scale=0.5)
+upgradeButton = Button(415, 380, pg.image.load("grafika/upgrade.png"), pg.image.load("grafika/upgrade_hover.png"), "soundtracks\\coin-upaif-14631.mp3", scale=0.5)
