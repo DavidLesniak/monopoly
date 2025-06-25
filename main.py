@@ -16,6 +16,9 @@ from end import *
 
 
 pg.init()
+pg.mixer.init()
+pg.mixer.music.load("soundtracks\\action-255730.mp3")
+
 
 FONT = pg.font.SysFont(None, 24)
 
@@ -254,6 +257,8 @@ class Board:
 
 class Game:
     def __init__(self, screen, players):
+        pg.mixer.music.play(-1)
+        pg.mixer.music.set_volume(0.2)
         self.screen = screen
         self.dice = Dice()
         self.board = Board()

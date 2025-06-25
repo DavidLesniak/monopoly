@@ -1,7 +1,13 @@
 import pygame as pg
 from text import Text, TextCenter
 
+pg.mixer.init()
+
+
 class Player(pg.sprite.Sprite):
+    sound_effect = pg.mixer.Sound("soundtracks\\retro-coin-4-236671.mp3")
+    sound_effect_police = pg.mixer.Sound("soundtracks\\police-intro-sfx-323774.mp3")
+
     def __init__(self, name, image=None):
         self.image = image
         self.rect = self.image.get_rect()
@@ -13,6 +19,7 @@ class Player(pg.sprite.Sprite):
         self.animation = False
         self._animationTextGroup = []
         self.jail = 0
+
 
     def move(self, steps):
         # Sprawdzenie czy gracz jest w więzieniu
@@ -29,6 +36,7 @@ class Player(pg.sprite.Sprite):
     def update(self, cards):
         # Aktualizacaj pozycji jeśli gracz nie dotarł na wyznaczone pole
         if self.position != self.destination:
+            Player.sound_effect.play()
 
             # Dodanie wpłaty na konto po przejściu przez start
             if self.position == 0 and self.position != self.destination:
@@ -36,7 +44,7 @@ class Player(pg.sprite.Sprite):
                 self.cash += 400
 
             self.position = (self.position+1) % 36
-            pg.time.delay(50)
+            pg.time.delay(100)
 
         else:
             self.moving = False
@@ -46,6 +54,7 @@ class Player(pg.sprite.Sprite):
                 self.position = 9
                 self.destination = 9
                 self.jail = 1
+                Player.sound_effect_police.play()
 
         self.rect.center = cards[self.position].fieldRect.center
 
