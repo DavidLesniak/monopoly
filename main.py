@@ -219,7 +219,6 @@ class SpecialCard(Card):
             self.function(player)
 
 
-
 class Board:
     def __init__(self):
         self.cards = []
@@ -323,6 +322,11 @@ class Game:
             else:
                 endthrowButtonNoactive.draw(self.screen)
             
+            # Koniec gry gdy jeden z gracyz zbankrutuje
+            for p in self.players:
+                if p.cash < 0:
+                    return self.end()
+                
             # Wyłączanie gry
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -347,6 +351,17 @@ class Game:
             pg.display.update()
             clock.tick(60)
 
+    def end(self):
+        win = []
+        for p in self.players:
+            win.append({
+                'name': p.name,
+                'cash': p.cash
+                })
+
+        win = sorted(win, key=lambda x: x['cash'], reverse=True)
+        print(win)
+        return win
     
 
 if __name__ == '__main__':
