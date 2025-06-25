@@ -9,6 +9,11 @@ from text import Text, TextCenter
 from scoreboard import Scoreboard
 from specialCardActions import *
 from player import Player
+from logo import *
+from end import *
+
+
+
 
 pg.init()
 
@@ -376,9 +381,12 @@ if __name__ == '__main__':
     run = True
     while run:
         screen.fill((202, 228, 241))
+        screen.blit(logo, get_logo_rect(screen))
         if menu_buttons["start"].draw(screen) and result != None:
             game = Game(screen, result)
-            game.run()
+            score = game.run()  
+            end_screen = End()
+            end_screen.run(score)          
             run = False
         if menu_buttons["setup"].draw(screen):
             current_setup = "setup"
