@@ -1,5 +1,4 @@
 import pygame as pg
-from config import *
 
 SCREEN_WIDTH, SCREEN_HEIGHT = 800, 800
 BUTTON_SPACING = 30
