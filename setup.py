@@ -118,8 +118,6 @@ class Setup2():
                         self.player_names[self.current_player - 1] = name
                         self.selected_tokens.append(self.chosen_token)
 
-                        player_tokens = {f"player{i+1}": token for i, token in enumerate(self.selected_tokens)}
-
                         result = []
                         for i, p in enumerate(self.player_names):
                             r = {
