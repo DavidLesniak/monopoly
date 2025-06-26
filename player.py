@@ -30,6 +30,7 @@ class Player(pg.sprite.Sprite):
             self.destination = (self.position + steps) % 36
 
     def actionAnimation(self, text='', color='black', size=25):
+        # Dodanie animacji do odtworzenia
         self.animation = True
         self._animationTextGroup.append(TextCenter(text, color, self.rect.centerx, self.rect.centery, size))
 
@@ -58,17 +59,21 @@ class Player(pg.sprite.Sprite):
 
         self.rect.center = cards[self.position].fieldRect.center
 
+        # Odtwarzanie animacji
         if self.animation:
             for textObject in self._animationTextGroup:
                 if self.moving:
                     textObject.cx = self.rect.centerx
                     textObject.cy = self.rect.centery
+
+                # Przesuwanie napisu nad głową gracza w górę
                 textObject.cy -= 0.7
                 textObject.update()
 
                 if textObject.cy < self.rect.centery-40:
                     self._animationTextGroup.remove(textObject)
-                    
+        
+        # Koniec odtwarzania animacji
         if len(self._animationTextGroup) == 0:
             animation = False
 

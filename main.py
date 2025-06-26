@@ -273,6 +273,7 @@ class Game:
         self.init_players()
 
     def init_players(self):
+        # Ustawienie wszystkich graczy na polu startowym
         for player in self.players:
             player.move(0)
             player.update(self.board.cards)
@@ -317,7 +318,7 @@ class Game:
 
                     # Jeśli to normalne pole
                     if isinstance(card, SpecialCard) == False:
-                        # Pdatek
+                        # Gracz płaci podatek na koniec tury jeśli to nie jest jego pole
                         if card.owner != player and card.owner != None:
                             card.pay(player)
                             player.actionAnimation(f'-{card.fee[card.updateLevel]}$', 'red')    # @property
@@ -326,10 +327,12 @@ class Game:
                     else:
                         card.action(player)
 
-
+                    # Po skończeniu tury następuje zmiana gracza
                     tour = False
                     tour_index = (tour_index+1) % len(self.players)
                     player = self.players[tour_index]
+
+                    # Aktualizacja tekst informującego u turze gracza
                     self.textInfo.text = 'Tura gracza: '+ player.name
                     self.textInfo.update()
 
@@ -387,12 +390,14 @@ if __name__ == '__main__':
     while run:
         screen.fill((202, 228, 241))
         screen.blit(logo, get_logo_rect(screen))
-        if menu_buttons["start"].draw(screen) and result != None:
-            game = Game(screen, result)
-            score = game.run()  
-            end_screen = End()
-            end_screen.run(score)          
-            run = False
+
+        if result != None:
+            if menu_buttons["start"].draw(screen):
+                game = Game(screen, result)
+                score = game.run()
+                end_screen = End()
+                end_screen.run(score)          
+                run = False
         if menu_buttons["setup"].draw(screen):
             current_setup = "setup"
             while True:
